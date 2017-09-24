@@ -1,0 +1,6 @@
+# Global mysql connection, which can be used by other plugins
+global-mysql:
+  host: localhost
+  user: minecraft
+  password: ilovenotch
+  database: minecraft
