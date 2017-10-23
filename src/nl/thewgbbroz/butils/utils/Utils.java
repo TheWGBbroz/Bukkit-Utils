@@ -2,6 +2,7 @@ package nl.thewgbbroz.butils.utils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -10,8 +11,10 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.potion.PotionEffect;
 
 import nl.thewgbbroz.butils.BUtils;
@@ -195,6 +198,9 @@ public class Utils {
 	}
 	
 	public static Location parseLocation(String s) {
+		if(s.equalsIgnoreCase("null"))
+			return null;
+		
 		try{
 			String[] parts = s.split(" ");
 			
@@ -223,6 +229,9 @@ public class Utils {
 	}
 	
 	public static String stringifyLocation(Location loc) {
+		if(loc == null)
+			return "null";
+		
 		return loc.getWorld().getName() + " " + loc.getX() + " " + loc.getY() + " " + loc.getZ() + " " + loc.getYaw() + " " + loc.getPitch();
 	}
 	
@@ -370,5 +379,89 @@ public class Utils {
 			secsStr = "0" + secsStr;
 		
 		return mins + ":" + secsStr;
+	}
+	
+	public static boolean contains(Location loc, Location min, Location max) {
+		if(min.getWorld() != loc.getWorld() || max.getWorld() != loc.getWorld()) {
+			throw new IllegalArgumentException("All 3 locations must be in the same world!");
+		}
+		
+		return loc.getX() > min.getX() && loc.getX() < max.getX() &&
+				loc.getY() > min.getY() && loc.getY() < max.getY() &&
+				loc.getZ() > min.getZ() && loc.getZ() < max.getZ();
+	}
+	
+	public static void fillInventoryRandomly(Inventory inv, Map<ItemStack, Double> items) {
+		for(ItemStack is : items.keySet()) {
+			if(inv.firstEmpty() == -1)
+				return;
+			
+			double c = items.get(is);
+			if(BUtils.RAND.nextDouble() < c) {
+				int slot;
+				do {
+					slot = BUtils.RAND.nextInt(inv.getSize());
+				}while(!isNothing(inv.getItem(slot)));
+				
+				inv.setItem(slot, is.clone());
+			}
+		}
+	}
+	
+	public static void fillInventoryRandomly(Inventory inv, List<ItemStack> items) {
+		for(ItemStack is : items) {
+			if(inv.firstEmpty() == -1)
+				return;
+			
+			int slot;
+			do {
+				slot = BUtils.RAND.nextInt(inv.getSize());
+			}while(!isNothing(inv.getItem(slot)));
+			
+			inv.setItem(slot, is.clone());
+		}
+	}
+	
+	public static boolean isNothing(ItemStack is) {
+		return is == null || is.getType() == Material.AIR;
+	}
+	
+	public static boolean itemStackEquals(ItemStack is1, ItemStack is2, boolean matchAmount, boolean matchDurability, boolean matchDisplayName) {
+		if(is1.getType() != is2.getType())
+			return false;
+		
+		if(matchAmount && is1.getAmount() != is2.getAmount())
+			return false;
+		
+		if(matchDurability && is1.getDurability() != is2.getDurability())
+			return false;
+		
+		if(matchDisplayName) {
+			if(!(is1.hasItemMeta() && is2.hasItemMeta()))
+				return false;
+			
+			if(!(is1.getItemMeta().hasDisplayName() && is2.getItemMeta().hasDisplayName()))
+				return false;
+			
+			if(!is1.getItemMeta().getDisplayName().equals(is2.getItemMeta().getDisplayName()))
+				return false;
+		}
+		
+		return true;
+	}
+	
+	public static void setDisplayName(ItemStack is, String displayName) {
+		ItemMeta im = is.getItemMeta();
+		im.setDisplayName(displayName);
+		is.setItemMeta(im);
+	}
+	
+	public static ItemStack getHead(String owner) {
+		ItemStack is = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
+		SkullMeta sm = (SkullMeta) is.getItemMeta();
+		sm.setOwner(owner);
+		is.setItemMeta(sm);
+		
+		return is;
 	}
 }

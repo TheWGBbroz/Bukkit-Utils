@@ -1,4 +1,4 @@
-package nl.thewgbbroz.butils;
+package nl.thewgbbroz.butils.config;
 
 import java.io.File;
 import java.io.IOException;

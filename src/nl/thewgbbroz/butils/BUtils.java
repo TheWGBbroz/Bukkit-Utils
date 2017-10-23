@@ -5,6 +5,7 @@ import java.util.Random;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import nl.thewgbbroz.butils.config.Config;
 import nl.thewgbbroz.butils.customblocks.CustomBlockManager;
 import nl.thewgbbroz.butils.custominventory.CustomInventoryManager;
 import nl.thewgbbroz.butils.managers.CombatManager;
