@@ -1,5 +1,6 @@
 package nl.thewgbbroz.butils.utils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -28,8 +29,8 @@ public class Utils {
 	
 	private static final char[] CHAT_COLOR_CHARS = "1234567890abcdef".toCharArray();
 	
-	public static ItemStack makeItem(Material type, int amount, short damage, String customName) {
-		ItemStack is = new ItemStack(type, amount, damage);
+	public static ItemStack makeItem(Material type, int amount, int damage, String customName) {
+		ItemStack is = new ItemStack(type, amount, (short) damage);
 		ItemMeta im = is.getItemMeta();
 		im.setDisplayName(customName);
 		is.setItemMeta(im);
@@ -353,16 +354,16 @@ public class Utils {
 	}
 	
 	public static boolean isInt(String s) {
-		try{
-			Integer.parseInt(s);
-			return true;
-		}catch(Exception e) {}
+		for(int i = 0; i < s.length(); i++) {
+			if(!isInt(s.charAt(i)))
+				return false;
+		}
 		
-		return false;
+		return true;
 	}
 	
 	public static boolean isInt(char c) {
-		return isInt(String.valueOf(c));
+		return c >= '0' && c <= '9';
 	}
 	
 	public static void sendClickableMessage(Player p, String msg, String cmd) {
@@ -463,5 +464,30 @@ public class Utils {
 		is.setItemMeta(sm);
 		
 		return is;
+	}
+	
+	public static void deleteDirectory(File dir) {
+		if(!dir.exists() || !dir.isDirectory())
+			return;
+		
+		for(File f : dir.listFiles()) {
+			if(f.isDirectory())
+				deleteDirectory(f);
+			else
+				f.delete();
+		}
+		
+		dir.delete();
+	}
+	
+	public static void deleteWorld(World world) {
+		for(Player p : Bukkit.getOnlinePlayers()) {
+			if(p.getWorld() == world)
+				p.teleport(Bukkit.getWorlds().get(0).getSpawnLocation());
+		}
+		
+		Bukkit.unloadWorld(world, true);
+		
+		deleteDirectory(world.getWorldFolder());
 	}
 }
