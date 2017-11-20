@@ -19,6 +19,10 @@ import org.bukkit.scheduler.BukkitRunnable;
 import nl.thewgbbroz.butils.BUtils;
 
 public class CustomBlockManager implements Listener {
+	private static final CustomBlockClickListener DUMMY_LISTENER = new CustomBlockClickListener() {
+		public void onCustomBlockClickEvent(CustomBlockManager manager, CustomBlock cb) {}
+	};
+	
 	private Map<CustomBlock, CustomBlockClickListener> customBlocks = new HashMap<>();
 	
 	public CustomBlockManager(BUtils plugin) {
@@ -66,6 +70,9 @@ public class CustomBlockManager implements Listener {
 	}
 	
 	public CustomBlock addCustomBlock(Block b, Material fakeMaterial, Player p, CustomBlockClickListener listener) {
+		if(listener == null)
+			listener = DUMMY_LISTENER;
+		
 		CustomBlock cb = new CustomBlock(p, b, fakeMaterial);
 		customBlocks.put(cb, listener);
 		return cb;

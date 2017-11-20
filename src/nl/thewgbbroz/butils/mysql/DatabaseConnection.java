@@ -27,7 +27,7 @@ public class DatabaseConnection {
 	}
 	
 	// Use '?' to define a parameter (Will be replaced in order)
-	public boolean query(String query, Object... parameters) {
+	public boolean query(String query, Object... parameters) throws SQLException {
 		try{
 			refreshConnection();
 			
@@ -38,18 +38,16 @@ public class DatabaseConnection {
 			}
 			
 			if(!keepConnected) disconnect();
+			
 			return ps.execute();
 		}catch(SQLException e) {
-			e.printStackTrace();
+			if(!keepConnected) disconnect();
+			throw e;
 		}
-		
-		if(!keepConnected) disconnect();
-		
-		return false;
 	}
 	
 	// Returns a ResultSet, or null if an error occurred
-	public ResultSet queryResults(String query, Object... parameters) {
+	public ResultSet queryResults(String query, Object... parameters) throws SQLException {
 		try{
 			refreshConnection();
 			
@@ -60,14 +58,22 @@ public class DatabaseConnection {
 			}
 			
 			if(!keepConnected) disconnect();
+			
 			return ps.executeQuery();
 		}catch(SQLException e) {
-			e.printStackTrace();
+			if(!keepConnected) disconnect();
+			throw e;
+		}
+	}
+	
+	public boolean doesTableExist(String table) {
+		try{
+			query("SELECT * FROM `" + table + "` WHERE 1 LIMIT 1");
+			return true;
+		}catch(SQLException e) {
 		}
 		
-		if(!keepConnected) disconnect();
-		
-		return null;
+		return false;
 	}
 	
 	public void disconnect() {

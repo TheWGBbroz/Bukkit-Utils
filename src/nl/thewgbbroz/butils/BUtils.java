@@ -8,6 +8,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import nl.thewgbbroz.butils.config.Config;
 import nl.thewgbbroz.butils.customblocks.CustomBlockManager;
 import nl.thewgbbroz.butils.custominventory.CustomInventoryManager;
+import nl.thewgbbroz.butils.ignitedtnt.IgnitedTNTManager;
 import nl.thewgbbroz.butils.managers.CombatManager;
 import nl.thewgbbroz.butils.managers.VisibilityManager;
 import nl.thewgbbroz.butils.mysql.DatabaseConnection;
@@ -25,6 +26,7 @@ public class BUtils extends JavaPlugin {
 	private CustomInventoryManager customInventoryManager;
 	private CombatManager combatManager;
 	private CustomBlockManager customBlockManager;
+	private IgnitedTNTManager ignitedTNTManager;
 	//
 	
 	private BPermissions bPermissions;
@@ -41,6 +43,7 @@ public class BUtils extends JavaPlugin {
 		customInventoryManager = new CustomInventoryManager(this);
 		combatManager = new CombatManager(this);
 		customBlockManager = new CustomBlockManager(this);
+		ignitedTNTManager = new IgnitedTNTManager(this);
 		//
 		
 		bPermissions = new BPermissions();
@@ -86,6 +89,10 @@ public class BUtils extends JavaPlugin {
 	
 	public CustomBlockManager getCustomBlockManager() {
 		return customBlockManager;
+	}
+	
+	public IgnitedTNTManager getIgnitedTNTManager() {
+		return ignitedTNTManager;
 	}
 	
 	public BPermissions getBPermissions() {

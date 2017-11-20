@@ -7,13 +7,19 @@ import java.util.Map;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Color;
+import org.bukkit.FireworkEffect;
+import org.bukkit.FireworkEffect.Type;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.potion.PotionEffect;
@@ -78,7 +84,7 @@ public class Utils {
 	public static ItemStack parseItemStack(String s) {
 		// name amount damage name:___ ench:___ ench:___ lore:_,_,_
 		
-		if(s.equalsIgnoreCase("null"))
+		if(s.equalsIgnoreCase("null") || s.equalsIgnoreCase("none"))
 			return null;
 		
 		String[] parts;
@@ -199,7 +205,7 @@ public class Utils {
 	}
 	
 	public static Location parseLocation(String s) {
-		if(s.equalsIgnoreCase("null"))
+		if(s == null || s.equalsIgnoreCase("null"))
 			return null;
 		
 		try{
@@ -292,11 +298,7 @@ public class Utils {
 	}
 	
 	public static boolean isArmor(ItemStack is) {
-		if(is == null)
-			return false;
-		
-		return is.getType().name().contains("HELMET") || is.getType().name().contains("CHESTPLATE") ||
-				is.getType().name().contains("LEGGINGS") || is.getType().name().contains("BOOTS");
+		return getArmorSlot(is) != -1;
 	}
 	
 	public static boolean isWeapon(ItemStack is) {
@@ -481,6 +483,9 @@ public class Utils {
 	}
 	
 	public static void deleteWorld(World world) {
+		if(world == Bukkit.getWorlds().get(0))
+			throw new IllegalArgumentException("You can't delete the default world (Index 0)!");
+		
 		for(Player p : Bukkit.getOnlinePlayers()) {
 			if(p.getWorld() == world)
 				p.teleport(Bukkit.getWorlds().get(0).getSpawnLocation());
@@ -489,5 +494,57 @@ public class Utils {
 		Bukkit.unloadWorld(world, true);
 		
 		deleteDirectory(world.getWorldFolder());
+	}
+	
+	public static boolean isLiquid(Material mat) {
+		return mat == Material.WATER || mat == Material.STATIONARY_WATER || mat == Material.LAVA || mat == Material.STATIONARY_LAVA;
+	}
+	
+	public static Firework spawnRandomFirework(Location loc) {
+		Firework fw = (Firework) loc.getWorld().spawnEntity(loc, EntityType.FIREWORK);
+		FireworkMeta fwm = fw.getFireworkMeta();
+
+		int rt = BUtils.RAND.nextInt(4) + 1;
+		Type type = Type.BALL;
+		if (rt == 1)
+			type = Type.BALL;
+		if (rt == 2)
+			type = Type.BALL_LARGE;
+		if (rt == 3)
+			type = Type.BURST;
+		if (rt == 4)
+			type = Type.CREEPER;
+		if (rt == 5)
+			type = Type.STAR;
+
+		Color c1 = Color.fromRGB(BUtils.RAND.nextInt(256), BUtils.RAND.nextInt(256), BUtils.RAND.nextInt(256));
+		Color c2 = Color.fromRGB(BUtils.RAND.nextInt(256), BUtils.RAND.nextInt(256), BUtils.RAND.nextInt(256));
+		
+		FireworkEffect effect = FireworkEffect.builder().flicker(BUtils.RAND.nextBoolean()).withColor(c1).withFade(c2).with(type)
+				.trail(BUtils.RAND.nextBoolean()).build();
+
+		fwm.addEffect(effect);
+
+		int rp = BUtils.RAND.nextInt(2) + 1;
+		fwm.setPower(rp);
+
+		fw.setFireworkMeta(fwm);
+		
+		return fw;
+	}
+	
+	public static int getArmorSlot(ItemStack armor) {
+		if(armor == null) return -1;
+		
+		if(armor.getType().name().contains("HELMET"))
+			return 3;
+		else if(armor.getType().name().contains("CHESTPLATE"))
+			return 2;
+		else if(armor.getType().name().contains("LEGGINGS"))
+			return 1;
+		else if(armor.getType().name().contains("BOOTS"))
+			return 0;
+		
+		return -1;
 	}
 }
