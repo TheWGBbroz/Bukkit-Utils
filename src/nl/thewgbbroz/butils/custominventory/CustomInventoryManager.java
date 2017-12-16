@@ -9,6 +9,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -41,12 +42,34 @@ public class CustomInventoryManager implements Listener {
 	@EventHandler
 	public void onInventoryClickEvent(InventoryClickEvent e) {
 		if(inInv.containsKey(e.getWhoClicked())) {
-			if(inInv.get(e.getWhoClicked()).onClick(e.getCurrentItem()))
+			CustomInventoryListener listener = inInv.get(e.getWhoClicked());
+			
+			if(listener.onClick(e.getCurrentItem(), e.getSlot(), e.getClickedInventory()))
 				e.setCancelled(true);
 		}
 	}
 	
-	public void openInventory(Player p, ItemStack[] contents, String title, CustomInventoryListener cil) {
+	@EventHandler
+	public void onInventoryDragEvent(InventoryDragEvent e) {
+		if(inInv.containsKey(e.getWhoClicked())) {
+			CustomInventoryListener listener = inInv.get(e.getWhoClicked());
+			
+			boolean cancel = false;
+			for(Integer slot : e.getNewItems().keySet()) {
+				ItemStack is = e.getNewItems().get(slot);
+				
+				if(listener.onClick(is, slot, e.getInventory())) {
+					cancel = true;
+					// Don't break, the listener might want to know about the other clicks as well!
+				}
+			}
+			
+			if(cancel)
+				e.setCancelled(true);
+		}
+	}
+	
+	public Inventory openInventory(Player p, ItemStack[] contents, String title, CustomInventoryListener cil) {
 		if(contents.length % 9 != 0)
 			throw new IllegalArgumentException("contents.length must be divisible by 9!");
 		
@@ -56,5 +79,7 @@ public class CustomInventoryManager implements Listener {
 		inInv.put(p, cil);
 		
 		p.openInventory(inv);
+		
+		return inv;
 	}
 }
