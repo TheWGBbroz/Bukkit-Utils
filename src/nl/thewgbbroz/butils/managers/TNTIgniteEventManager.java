@@ -1,4 +1,4 @@
-package nl.thewgbbroz.butils.ignitedtnt;
+package nl.thewgbbroz.butils.managers;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -13,10 +13,10 @@ import org.bukkit.scheduler.BukkitRunnable;
 import nl.thewgbbroz.butils.BUtils;
 import nl.thewgbbroz.butils.events.TNTIgniteEvent;
 
-public class IgnitedTNTManager implements Listener {
+public class TNTIgniteEventManager implements Listener {
 	private BUtils plugin;
 	
-	public IgnitedTNTManager(BUtils plugin) {
+	public TNTIgniteEventManager(BUtils plugin) {
 		this.plugin = plugin;
 		
 		Bukkit.getPluginManager().registerEvents(this, plugin);

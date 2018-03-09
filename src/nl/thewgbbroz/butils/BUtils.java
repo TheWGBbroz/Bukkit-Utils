@@ -6,10 +6,13 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import nl.thewgbbroz.butils.config.Config;
+import nl.thewgbbroz.butils.config.MessagesConfig;
 import nl.thewgbbroz.butils.customblocks.CustomBlockManager;
 import nl.thewgbbroz.butils.custominventory.CustomInventoryManager;
-import nl.thewgbbroz.butils.ignitedtnt.IgnitedTNTManager;
 import nl.thewgbbroz.butils.managers.CombatManager;
+import nl.thewgbbroz.butils.managers.PlayerEnderPearlThrowEventManager;
+import nl.thewgbbroz.butils.managers.PlayerPotionEffectEventManager;
+import nl.thewgbbroz.butils.managers.TNTIgniteEventManager;
 import nl.thewgbbroz.butils.managers.VisibilityManager;
 import nl.thewgbbroz.butils.mysql.DatabaseConnection;
 import nl.thewgbbroz.butils.permissions.BPermissions;
@@ -20,13 +23,16 @@ public class BUtils extends JavaPlugin {
 	private static BUtils instance;
 	
 	private Config config;
+	private MessagesConfig globalMessages;
 	
 	// Managers
 	private VisibilityManager visibilityManager;
 	private CustomInventoryManager customInventoryManager;
 	private CombatManager combatManager;
 	private CustomBlockManager customBlockManager;
-	private IgnitedTNTManager ignitedTNTManager;
+	private TNTIgniteEventManager tntIgniteEventManager;
+	private PlayerPotionEffectEventManager playerPotionEffectEventManager;
+	private PlayerEnderPearlThrowEventManager playerEnderPearlThrowEventManager;
 	//
 	
 	private BPermissions bPermissions;
@@ -37,18 +43,24 @@ public class BUtils extends JavaPlugin {
 		instance = this;
 		
 		config = new Config(this, "config.yml");
+		globalMessages = new MessagesConfig(this, "global-messages.yml");
 		
 		// Managers
 		visibilityManager = new VisibilityManager(this);
 		customInventoryManager = new CustomInventoryManager(this);
 		combatManager = new CombatManager(this);
 		customBlockManager = new CustomBlockManager(this);
-		ignitedTNTManager = new IgnitedTNTManager(this);
+		tntIgniteEventManager = new TNTIgniteEventManager(this);
+		playerPotionEffectEventManager = new PlayerPotionEffectEventManager(this);
+		playerEnderPearlThrowEventManager = new PlayerEnderPearlThrowEventManager(this);
 		//
 		
 		bPermissions = new BPermissions();
 		
 		globalDB = new DatabaseConnection(getConfig().getString("global-mysql.host"), getConfig().getString("global-mysql.user"), getConfig().getString("global-mysql.password"), getConfig().getString("global-mysql.database"), true);
+		
+		// TESTS:
+		//new Tests(this).testMultiTickTask();
 	}
 	
 	@Override
@@ -75,6 +87,10 @@ public class BUtils extends JavaPlugin {
 		config.saveDefault();
 	}
 	
+	public MessagesConfig getGlobalMessages() {
+		return globalMessages;
+	}
+	
 	public VisibilityManager getVisibilityManager() {
 		return visibilityManager;
 	}
@@ -91,8 +107,16 @@ public class BUtils extends JavaPlugin {
 		return customBlockManager;
 	}
 	
-	public IgnitedTNTManager getIgnitedTNTManager() {
-		return ignitedTNTManager;
+	public TNTIgniteEventManager getTntIgniteEventManager() {
+		return tntIgniteEventManager;
+	}
+	
+	public PlayerPotionEffectEventManager getPlayerPotionEffectEventManager() {
+		return playerPotionEffectEventManager;
+	}
+	
+	public PlayerEnderPearlThrowEventManager getPlayerEnderPearlThrowEventManager() {
+		return playerEnderPearlThrowEventManager;
 	}
 	
 	public BPermissions getBPermissions() {

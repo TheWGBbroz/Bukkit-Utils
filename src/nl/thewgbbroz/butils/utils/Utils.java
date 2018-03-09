@@ -58,13 +58,22 @@ public class Utils {
 		return s;
 	}
 	
-	public static void giveOrDrop(Player p, ItemStack is) {
+	public static String toEnumFormat(String s) {
+		s = s.toUpperCase().replace(" ", "_");
+		return s;
+	}
+	
+	public static void giveOrDrop(Player p, ItemStack is, Location dropLoc) {
 		if(p.getInventory().firstEmpty() == -1) {
-			p.getWorld().dropItem(p.getLocation(), is);
+			p.getWorld().dropItem(dropLoc, is);
 		}else{
 			p.getInventory().addItem(is);
 			p.updateInventory();
 		}
+	}
+	
+	public static void giveOrDrop(Player p, ItemStack is) {
+		giveOrDrop(p, is, p.getLocation());
 	}
 	
 	@SuppressWarnings("deprecation")
@@ -84,7 +93,7 @@ public class Utils {
 	public static ItemStack parseItemStack(String s) {
 		// name amount damage name:___ ench:___ ench:___ lore:_,_,_
 		
-		if(s.equalsIgnoreCase("null") || s.equalsIgnoreCase("none"))
+		if(s == null || s.equalsIgnoreCase("null") || s.equalsIgnoreCase("none"))
 			return null;
 		
 		String[] parts;
@@ -132,7 +141,7 @@ public class Utils {
 					
 					if(part.startsWith("name:")) {
 						String name = part.substring("name:".length());
-						name = ChatColor.RESET + ChatColor.translateAlternateColorCodes('&', name);
+						name = ChatColor.translateAlternateColorCodes('&', name);
 						name = name.replace("_", " ");
 						im.setDisplayName(name);
 					}else if(part.startsWith("ench:")) {
@@ -187,18 +196,22 @@ public class Utils {
 		sb.append(" " + is.getDurability());
 		
 		if(is.hasItemMeta() && is.getItemMeta().hasDisplayName())
-			sb.append(" name:" + is.getItemMeta().getDisplayName());
+			sb.append(" name:" + is.getItemMeta().getDisplayName().replace(" ", "_"));
 		
 		for(Enchantment ench : is.getEnchantments().keySet()) {
 			int lvl = is.getEnchantments().get(ench);
 			sb.append(" ench:" + ench.getName() + "/" + lvl);
 		}
 		
-		if(is.hasItemMeta() && is.getItemMeta().hasLore()) {
-			sb.append(" lore:");
-			for(String l : is.getItemMeta().getLore())
-				sb.append(l + ",");
-			sb.deleteCharAt(sb.length() - 1);
+		if(is.hasItemMeta()) {
+			ItemMeta im = is.getItemMeta();
+			
+			if(im.hasLore()) {
+				sb.append(" lore:");
+				for(String l : im.getLore())
+					sb.append(l.replace(" ", "_") + ",");
+				sb.deleteCharAt(sb.length() - 1);
+			}
 		}
 		
 		return sb.toString();

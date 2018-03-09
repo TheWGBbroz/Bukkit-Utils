@@ -23,11 +23,11 @@ public class CombatManager implements Listener {
 		Bukkit.getPluginManager().registerEvents(this, plugin);
 	}
 	
-	public boolean isInCombat(Player p, int pvpCooldown) {
+	public boolean isInCombat(Player p, int msCooldown) {
 		if(!lastPvp.containsKey(p))
 			return false;
 		
-		return (System.currentTimeMillis() - lastPvp.get(p)) < pvpCooldown;
+		return (System.currentTimeMillis() - lastPvp.get(p)) < msCooldown;
 	}
 	
 	public boolean isInCombat(Player p) {
